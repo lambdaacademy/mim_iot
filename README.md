@@ -32,7 +32,7 @@ mix firmware.burn
 # insert the card into the Pi and start it - it will boot into the shell
 ```
 
-2. SHH-in
+2. SSH-in
 
 ```bash
 cd $ROOT
