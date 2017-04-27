@@ -5,7 +5,7 @@ defmodule NervesUccd.Application do
     import Supervisor.Spec, warn: false
 
     children = [
-      # worker(NervesUccd.Worker, [arg1, arg2, arg3]),
+      worker(NervesUccd.Worker, []),
     ]
 
     opts = [strategy: :one_for_one, name: NervesUccd.Supervisor]
