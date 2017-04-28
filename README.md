@@ -47,6 +47,15 @@
 
 ## Setup UPnP Cloud Capable Device (UCCD)
 
+### Prepare SSH
+
+```bash
+export MIX_TARGET=mim_iot_rpi
+./deps/erl_sshd/make_keys
+mv priv apps/nerves_uccd/priv
+# take a note of the generated id_rsa and id_rsa.pub files that will be required at login
+```
+
 ### Host target
 
 ```bash
@@ -57,16 +66,7 @@ iex -S mix
 
 ### RaspberryPi target
 
-1. Prepare SSH
-
-```bash
-export MIX_TARGET=mim_iot_rpi
-./deps/erl_sshd/make_keys
-mv priv apps/nerves_uccd/priv
-# take a note of the generated id_rsa and id_rsa.pub files that will be required at login
-```
-
-2. Build and run
+1. Build and run
 
 ```bash
 cd apps/nerves_uccd
@@ -94,8 +94,9 @@ ssh -p 2222 -i id_rsa $RPI_IP # if you have [zeroconf] then use raspberrypi.loca
 ### Connect to an XMPP server (target agnostic)
 
 ```elixir
-alias Romeo.Connections, as: Conn
+alias Romeo.Connection, as: Conn
 alias Romeo.Stanza
+# remember to change host ip address appropriately to Your setup
 opts = [jid: "user_1@localhost", password: "pass_1", host: "169.254.11.124"]
 {:ok,pid} = Conn.start_link opts
 Conn.send pid, Romeo.Stanza.presence
