@@ -4,11 +4,12 @@ defmodule NervesUccd.Application do
   def start(_type, _args) do
     import Supervisor.Spec, warn: false
 
-    children = [
-      worker(NervesUccd.Worker, []),
-    ]
+    children = []
+
+    NervesUccd.setup_networking
 
     opts = [strategy: :one_for_one, name: NervesUccd.Supervisor]
     Supervisor.start_link(children, opts)
   end
+
 end
