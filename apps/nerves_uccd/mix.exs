@@ -47,9 +47,16 @@ defmodule NervesUccd.Mixfile do
   def deps("host"), do: []
   def deps("mim_iot_rpi") do
     [{:nerves_runtime, "~> 0.1.0"},
+     {:nerves_interim_wifi, "~> 0.2"},
      {:nerves_networking, "~> 0.6"},
      {:mim_iot_rpi, "0.12.0-dev", github: "mentels/mim_iot_rpi", runtime: false}]
       # path: "~/proj/iot/nerves_rpi_builder/mim_iot_rpi", runtime: false}]
+  end
+  def deps("mim_iot_rpi0") do
+    [{:nerves_runtime, "~> 0.1.0"},
+     {:nerves_interim_wifi, "~> 0.2"},
+     {:mim_iot_rpi0, "0.13.0-dev", github: "mentels/mim_iot_rpi0", runtime: false}]
+      # path: "~/proj/iot/nerves_rpi_builder/mim_iot_rpi0", runtime: false}]
   end
   def deps(target) do
     [{:nerves_runtime, "~> 0.1.0"},

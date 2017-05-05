@@ -6,7 +6,7 @@ defmodule NervesUccd.Application do
 
     children = []
 
-    NervesUccd.setup_networking
+    NervesUccd.Networking.setup
 
     opts = [strategy: :one_for_one, name: NervesUccd.Supervisor]
     Supervisor.start_link(children, opts)
