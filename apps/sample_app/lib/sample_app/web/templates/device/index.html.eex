@@ -1,0 +1,19 @@
+<table class="table">
+  <thead>
+    <tr>
+
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+<%= for d <- @devices do %>
+    <tr>
+
+      <td class="text-left">
+       <%= d %>
+      </td>
+
+    </tr>
+<% end %>
+  </tbody>
+</table>
