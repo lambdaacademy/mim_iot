@@ -6,7 +6,7 @@ defmodule UcaLib.Worker do
   alias Romeo.Stanza
 
   defmodule State do
-    defstruct conn_pid: nil
+    defstruct conn_pid: nil, pres_avail: []
   end
 
   # API
@@ -21,6 +21,10 @@ defmodule UcaLib.Worker do
 
   def send_presence_unavailable(pid) do
     GenServer.call(pid, :send_presence_unavailable)
+  end
+
+  def presences_available(pid) do
+    GenServer.call(pid, :presences_available)
   end
 
   # Internals
@@ -42,6 +46,7 @@ defmodule UcaLib.Worker do
   def handle_call(:send_presence_available, _from, state) do
     Conn.send state.conn_pid, Stanza.presence
     receive do
+      # self-presence
       {:stanza, %Stanza.Presence{}} -> {:reply, :ok, state}
     after
       4000 ->
@@ -53,6 +58,9 @@ defmodule UcaLib.Worker do
     Conn.send state.conn_pid, Stanza.presence "unavailable"
     {:reply, :ok, state}
   end
+  def handle_call(:presences_available, _from, state) do
+    {:reply, {:ok, state.pres_avail}, state}
+  end
 
   def handle_cast(:wait_for_conn, state) do
     receive do
@@ -60,6 +68,14 @@ defmodule UcaLib.Worker do
     after 
       5000 -> {:stop, :server_not_responding, state}
     end
+  end
+
+  def handle_info({:stanza, %Stanza.Presence{from: from, type: nil}}, state) do
+    {:noreply, %{state | pres_avail: [from.full | state.pres_avail]}}
+  end
+  def handle_info({:stanza, %Stanza.Presence{from: from, type: "unavailable"}},
+    state) do
+    {:noreply, %{state | pres_avail: state.pres_avail -- [from.full]}}
   end
 
   def handle_info(_msg, state) do
