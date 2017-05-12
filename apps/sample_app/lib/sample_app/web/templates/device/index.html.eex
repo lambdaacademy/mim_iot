@@ -1,9 +1,9 @@
 <h2>Listing Devices</h2>
-
+<h4>controlled by <%= @current_device %></h4>
 <table class="table">
   <thead>
     <tr>
-      <th>Device</th>
+      <th>Device </th>
 
       <th></th>
     </tr>

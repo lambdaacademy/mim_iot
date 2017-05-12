@@ -3,7 +3,8 @@ defmodule SampleApp.Web.DeviceController do
 
   def index(conn, _params) do
     {:ok, devs} = SampleApp.UccCp.devices
-    render conn, "index.html", devices: devs
+    {:ok, dev} = SampleApp.UccCp.current_device
+    render conn, "index.html", devices: devs, current_device: dev
   end
 
   def show(conn, %{"id" => device_id}) do

@@ -26,6 +26,12 @@ defmodule UcaLib.Registration do
   @spec disconnect(pid) :: {:ok, pid}
   def disconnect(pid), do: Supervisor.terminate_child UcaLib.Supervisor, pid
 
+  @doc """
+  Returns a full JID of the connection identified by `pid`
+  """
+  @spec id(pid) :: {:ok, String.t}
+  def id(pid), do: UcaLib.Worker.full_jid pid
+
   # Internals
 
   defp connect_opts(opts) do

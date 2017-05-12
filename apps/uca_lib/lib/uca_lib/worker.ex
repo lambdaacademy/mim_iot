@@ -31,6 +31,10 @@ defmodule UcaLib.Worker do
     GenServer.call(pid, :available_resources)
   end
 
+  def full_jid(pid) do
+    GenServer.call(pid, :full_jid)
+  end
+
   # Internals
 
   def init(args) do
@@ -55,6 +59,9 @@ defmodule UcaLib.Worker do
   end
   def handle_call(:available_resources, _from, state) do
     {:reply, {:ok, state.available_resources}, state}
+  end
+  def handle_call(:full_jid, _form, state) do
+    {:reply, {:ok, state.full_jid}, state}
   end
 
   def handle_cast({:connect, args}, %State{conn_pid: nil} = state) do
