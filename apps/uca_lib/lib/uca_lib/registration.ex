@@ -35,7 +35,7 @@ defmodule UcaLib.Registration do
   # TODO: Appropriately form an XMPP resource
   # See C.5.4 Binding Devices and Control Points as a Resource in UDA 2.0
   defp resource() do
-    "res"
+    "#{System.monotonic_time}"
   end
 
 end

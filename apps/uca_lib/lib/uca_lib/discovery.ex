@@ -26,7 +26,7 @@ defmodule UcaLib.Discovery do
   """
   @spec devices(pid) :: {:ok, [String.t]}
   def devices(pid) do
-    Worker.presences_available pid
+    Worker.available_resources pid
   end
 
 end
