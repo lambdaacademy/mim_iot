@@ -1,19 +1,24 @@
+<h2>Listing Devices</h2>
+
 <table class="table">
   <thead>
     <tr>
+      <th>Device</th>
 
       <th></th>
     </tr>
   </thead>
   <tbody>
-<%= for d <- @devices do %>
+<%= for device <- @devices do %>
     <tr>
+      <td><%= device.device_id %></td>
 
-      <td class="text-left">
-       <%= d %>
+      <td class="text-right">
+        <span><%= link "Show", to: device_path(@conn, :show, device), class: "btn btn-default btn-xs" %></span>
       </td>
-
     </tr>
 <% end %>
   </tbody>
 </table>
+
+
