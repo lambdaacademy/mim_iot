@@ -1,6 +1,15 @@
+<template id="device_row">
+    <tr id="device_id">
+        <td>device_id</td>
+        <td class="text-right">
+            <span><a class="btn btn-default btn-xs" href="/devices/device_id">Show</a></span>
+        </td>
+    </tr>
+</template>
+
 <h2>Listing Devices</h2>
 <h4>controlled by <%= @current_device %></h4>
-<table class="table">
+<table class="table" id="devices_table">
   <thead>
     <tr>
       <th>Device </th>
@@ -10,7 +19,7 @@
   </thead>
   <tbody>
 <%= for device <- @devices do %>
-    <tr>
+    <tr id=<%= device.device_id %>>
       <td><%= device.device_id %></td>
 
       <td class="text-right">

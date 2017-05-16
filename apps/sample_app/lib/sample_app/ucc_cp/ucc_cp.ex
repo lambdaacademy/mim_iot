@@ -6,15 +6,30 @@ defmodule SampleApp.UccCp do
   @refresh_timeout 1_000
 
   @type device_id :: String.t
+  @type subscription :: Subscription.t
+  @type subscription_ref :: reference
+
+  defmodule Subscription do
+    @type t :: %__MODULE__{
+      device_activated: ((Device.t) -> term),
+      device_deactivated: ((Device.t) -> term)
+    }
+    defstruct [:device_activated, :device_deactivated]
+  end
 
   defmodule State do
-    defstruct devices: [], conn_pid: nil, current_device: nil, disco_ref: nil
+    defstruct devices: [],
+      conn_pid: nil,
+      current_device: nil,
+      disco_ref: nil,
+      subscriptions: %{}
   end
 
   # API
 
+  @spec start_link() :: {:ok, pid}
   def start_link() do
-    GenServer.start_link(__MODULE__, nil, name: __MODULE__)
+    GenServer.start_link(__MODULE__, [], name: __MODULE__)
   end
 
   @doc """
@@ -47,11 +62,20 @@ defmodule SampleApp.UccCp do
     GenServer.call(__MODULE__, :current_device)
   end
 
+  @spec subscribe(subscription) :: {:ok, subscription_ref} | {:error, term}
+  def subscribe(subscription) do
+    GenServer.call(__MODULE__, {:subcribe, subscription})
+  end
+
+  @spec unsubscribe(subscription_ref) :: :ok | {:error, term}
+  def unsubscribe(ref) do
+    GenServer.call(__MODULE__, {:unsubscribe, ref})
+  end
+
 
   # Callbacks
 
-  def init(_) do
-    opts = []
+  def init(opts) do
     GenServer.cast(self(), {:connect, opts})
     {:ok, %State{}}
   end
@@ -76,6 +100,25 @@ defmodule SampleApp.UccCp do
     end
     {:reply, reply, state}
   end
+  def handle_call(
+    {:subcribe, %Subscription{device_activated: sub_fun,
+                              device_deactivated: unsub_fun} = sub},
+    _from,
+    %State{subscriptions: subs} = state)
+  when is_function(sub_fun, 1) and is_function(unsub_fun, 1) do
+    ref = make_ref()
+    {:reply, {:ok, ref}, %{state | subscriptions: Map.put(subs, ref, sub)}}
+  end
+  def handle_call({:subcribe, _}, _from, state) do
+    {:reply, {:error, :bad_subscription}, state}
+  end
+  def handle_call({:unsubscribe, ref}, _from, state) do
+    case Map.pop(state.subscriptions, ref) do
+      {nil, _} -> {:reply, {:error, :bad_ref}, state}
+      {_sub, subs} -> {:reply, :ok, %{state | subscriptions: subs}}
+    end
+  end
+
 
   def handle_cast({:connect, opts}, state) do
     {:ok, pid} = Registration.connect(opts)
@@ -89,14 +132,38 @@ defmodule SampleApp.UccCp do
   def handle_info(:refresh_devices, state) do
     {:ok, devices} = Discovery.devices(state.conn_pid)
     devices = for d <- devices, do: %Device{device_id: d}
+    devices
+    |> devices_diff(state.devices)
+    |> broadcast_devices_diff(state.subscriptions)
     schedule_devices_list_refresh(@refresh_timeout)
     {:noreply, %{state | devices: devices}}
   end
 
   # Internals
 
-  def schedule_devices_list_refresh(timeout_ms) do
+  defp schedule_devices_list_refresh(timeout_ms) do
     Process.send_after(self(), :refresh_devices, timeout_ms)
+  end
+
+  defp devices_diff(new_devices, old_devices) do
+    activated = new_devices -- old_devices
+    deactivated = old_devices -- new_devices
+    {activated, deactivated}
+  end
+
+  defp broadcast_devices_diff({activated, deactivated}, subscriptions) do
+    activated |> Enum.each(&broadcast_activated(&1, subscriptions))
+    deactivated |> Enum.each(&broadcast_deactivated(&1, subscriptions))
+  end
+
+  defp broadcast_activated(device, subscriptions) do
+    Enum.each(subscriptions,
+      fn({_ref, %Subscription{device_activated: fun}}) -> fun.(device) end)
+  end
+
+  defp broadcast_deactivated(device, subscriptions) do
+    Enum.each(subscriptions,
+      fn({_ref, %Subscription{device_deactivated: fun}}) -> fun.(device) end)
   end
 
 end

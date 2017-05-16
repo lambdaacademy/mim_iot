@@ -54,7 +54,31 @@ let socket = new Socket("/socket", {params: {token: window.userToken}})
 socket.connect()
 
 // Now that you are connected, you can join channels with a topic:
-let channel = socket.channel("topic:subtopic", {})
+let channel = socket.channel("devices:listing", {})
+
+function instanitate_device_row(device_id, device_url) {
+    let tmpl = document.querySelector("#device_row")
+    tmpl.content.querySelector("tr").id = device_id
+    let td = tmpl.content.querySelectorAll("td")
+    td[0].textContent = device_id
+    td[1].querySelector("a").setAttribute("href", device_url)
+    return document.importNode(tmpl.content, true)
+}
+
+channel.on("activated", payload => {
+    console.log("Device activated", payload)
+    let tb = document.querySelector("tbody")
+    let row = instanitate_device_row(payload.device_id, payload.url)
+    tb.appendChild(row)
+})
+
+channel.on("deactivated", payload => {
+    console.log("Device deactivated", payload)
+    let row = document.getElementById(payload.device_id)
+    row.parentNode.removeChild(row)
+})
+
+
 channel.join()
   .receive("ok", resp => { console.log("Joined successfully", resp) })
   .receive("error", resp => { console.log("Unable to join", resp) })
