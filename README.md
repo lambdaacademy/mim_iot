@@ -14,6 +14,8 @@ IoT network based on the UPnP+.
         - [Build for the *host* target](#build-for-the-host-target)
         - [Build for *mim_iot_rpi* target](#build-for-mimiotrpi-target)
         - [Connect to an XMPP server](#connect-to-an-xmpp-server)
+    - [UcaLib](#ucalib)
+    - [SampleApp](#sampleapp)
 
 <!-- markdown-toc end -->
 
@@ -176,6 +178,14 @@ server on the behalf of the resource that you've just connected:
 ```xml
 <presence from="user_1@localhost/9C8A435B9A7118081493384264818216" xml:lang="en" to="user_1@localhost/szm-mac"/>
 ```
+
+## UcaLib
+
+See [apps/uca_lib](apps/uca_lib) which a library supporting UPnP+ steps.
+
+## SampleApp
+
+See [apps/sample_app](apps/sample_app) which is a sample app implementing UPnP Contorl Point with a UI.
 
 [MongooseIM]: https://github.com/esl/MongooseIM
 [Nerves]: http://nerves-project.org/

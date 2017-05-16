@@ -1,0 +1,33 @@
+<template id="device_row">
+    <tr id="device_id">
+        <td>device_id</td>
+        <td class="text-right">
+            <span><a class="btn btn-default btn-xs" href="/devices/device_id">Show</a></span>
+        </td>
+    </tr>
+</template>
+
+<h2>Listing Devices</h2>
+<h4>controlled by <%= @current_device %></h4>
+<table class="table" id="devices_table">
+  <thead>
+    <tr>
+      <th>Device </th>
+
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+<%= for device <- @devices do %>
+    <tr id=<%= device.device_id %>>
+      <td><%= device.device_id %></td>
+
+      <td class="text-right">
+        <span><%= link "Show", to: device_path(@conn, :show, device), class: "btn btn-default btn-xs" %></span>
+      </td>
+    </tr>
+<% end %>
+  </tbody>
+</table>
+
+

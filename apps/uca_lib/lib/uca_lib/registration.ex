@@ -26,6 +26,12 @@ defmodule UcaLib.Registration do
   @spec disconnect(pid) :: {:ok, pid}
   def disconnect(pid), do: Supervisor.terminate_child UcaLib.Supervisor, pid
 
+  @doc """
+  Returns a full JID of the connection identified by `pid`
+  """
+  @spec id(pid) :: {:ok, String.t}
+  def id(pid), do: UcaLib.Worker.full_jid pid
+
   # Internals
 
   defp connect_opts(opts) do
@@ -35,7 +41,7 @@ defmodule UcaLib.Registration do
   # TODO: Appropriately form an XMPP resource
   # See C.5.4 Binding Devices and Control Points as a Resource in UDA 2.0
   defp resource() do
-    "res"
+    "#{System.monotonic_time}"
   end
 
 end

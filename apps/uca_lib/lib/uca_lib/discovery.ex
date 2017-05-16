@@ -20,4 +20,13 @@ defmodule UcaLib.Discovery do
     Worker.send_presence_unavailable pid
   end
 
+  @doc """
+  Return the list of the discovered devices
+
+  """
+  @spec devices(pid) :: {:ok, [String.t]}
+  def devices(pid) do
+    Worker.available_resources pid
+  end
+
 end
