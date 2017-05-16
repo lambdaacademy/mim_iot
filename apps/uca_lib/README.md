@@ -4,7 +4,7 @@ Provides implementation for UPnP+ steps as described in
 "C.1.7 UCA Steps as Analogies to UDA" of [UDA 2.0]. 
 
 To include `UcaLib` in the Nerves Image for a target add it as a dependency
-in [../nerves_uccd/mix.exs]:
+in [../nerves_uccd/mix.exs](../nerves_uccd/mix.exs):
 
 ```elixir
 def deps do

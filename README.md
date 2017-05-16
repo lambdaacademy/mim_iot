@@ -181,11 +181,11 @@ server on the behalf of the resource that you've just connected:
 
 ## UcaLib
 
-See [apps/uca_lib] which a library supporting UPnP+ steps.
+See [apps/uca_lib](apps/uca_lib) which a library supporting UPnP+ steps.
 
 ## SampleApp
 
-See [apps/sample_app] which is a sample app implementing UPnP Contorl Point with a UI.
+See [apps/sample_app](apps/sample_app) which is a sample app implementing UPnP Contorl Point with a UI.
 
 [MongooseIM]: https://github.com/esl/MongooseIM
 [Nerves]: http://nerves-project.org/

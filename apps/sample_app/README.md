@@ -26,3 +26,4 @@ It can also be started standalone with `mix phx.server`
 Now you can visit [`localhost:4000/devices`](http://localhost:4000/devices) from your browser.
 It should display all the connected UPnP+ devices.
 
+[UDA 2.0]: http://upnp.org/specs/arch/UPnP-arch-DeviceArchitecture-v2.0.pdf
