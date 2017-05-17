@@ -39,7 +39,8 @@ defmodule NervesUccd.Mixfile do
 
   def deps do
     [{:nerves, "~> 0.5.0", runtime: false},
-     {:romeo, "~> 0.7.0"},
+     {:romeo, github: "mentels/romeo"},
+     {:uca_lib, in_umbrella: true},
      {:erl_sshd, github: "ivanos/erl_sshd"}] ++
     deps(@target)
   end

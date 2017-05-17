@@ -41,7 +41,11 @@ defmodule UcaLib.Registration do
   # TODO: Appropriately form an XMPP resource
   # See C.5.4 Binding Devices and Control Points as a Resource in UDA 2.0
   defp resource() do
-    "#{System.monotonic_time}"
+    device_type = @connect_config[:device_type]
+    device_version = @connect_config[:device_version]
+    "urn:schemas-upnp-org:device:#{device_type}:#{device_version}:#{uuid()}"
   end
 
 end
+  defp uuid(), do: UUID.uuid4()
+
