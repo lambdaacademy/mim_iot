@@ -10,7 +10,8 @@ defmodule UcaLib.Worker do
     defstruct conn_pid: nil,
       conn_ready: false,
       available_resources: MapSet.new,
-      full_jid: nil
+      full_jid: nil,
+      resource: nil
   end
 
   # API
@@ -35,12 +36,21 @@ defmodule UcaLib.Worker do
     GenServer.call(pid, :full_jid)
   end
 
+  def resource(pid) do
+    GenServer.call(pid, :resource)
+  end
+
+  def send_stanza(pid, stanza) do
+    GenServer.call(pid, {:send_stanza, stanza})
+  end
+
   # Internals
 
   def init(args) do
     Process.flag :trap_exit, true
     GenServer.cast(self(), {:connect, args})
-    {:ok, %State{full_jid: "#{args[:jid]}/#{args[:resource]}"}}
+    resource = args[:resource]
+    {:ok, %State{full_jid: "#{args[:jid]}/#{resource}", resource: resource}}
   end
 
   def terminate(reason, state) do
@@ -62,6 +72,12 @@ defmodule UcaLib.Worker do
   end
   def handle_call(:full_jid, _form, state) do
     {:reply, {:ok, state.full_jid}, state}
+  end
+  def handle_call(:resource, _form, state) do
+    {:reply, {:ok, state.resource}, state}
+  end
+  def handle_call({:send_stanza, stanza}, _from , state) do
+    {:reply, Conn.send(state.conn_pid, stanza), state}
   end
 
   def handle_cast({:connect, args}, %State{conn_pid: nil} = state) do

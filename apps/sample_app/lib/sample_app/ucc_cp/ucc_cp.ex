@@ -1,6 +1,6 @@
 defmodule SampleApp.UccCp do
   use GenServer
-  alias UcaLib.{Registration, Discovery}
+  alias UcaLib.{Worker, Registration, Discovery}
   alias SampleApp.UccCp.Device
 
   @refresh_timeout 1_000
@@ -72,6 +72,11 @@ defmodule SampleApp.UccCp do
     GenServer.call(__MODULE__, {:unsubscribe, ref})
   end
 
+  @doc false
+  # For debugging purposes only
+  def send_stanza(stanza) do
+    GenServer.call(__MODULE__, {:send_stanza, stanza})
+  end
 
   # Callbacks
 
@@ -118,6 +123,9 @@ defmodule SampleApp.UccCp do
       {_sub, subs} -> {:reply, :ok, %{state | subscriptions: subs}}
     end
   end
+  def handle_call({:send_stanza, stanza}, _from, state) do
+    {:reply, Worker.send_stanza(state.conn_pid, stanza), state}
+  end
 
 
   def handle_cast({:connect, opts}, state) do
@@ -138,6 +146,7 @@ defmodule SampleApp.UccCp do
     schedule_devices_list_refresh(@refresh_timeout)
     {:noreply, %{state | devices: devices}}
   end
+
 
   # Internals
 

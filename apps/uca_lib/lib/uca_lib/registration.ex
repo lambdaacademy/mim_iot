@@ -29,8 +29,11 @@ defmodule UcaLib.Registration do
   @doc """
   Returns a full JID of the connection identified by `pid`
   """
-  @spec id(pid) :: {:ok, String.t}
-  def id(pid), do: UcaLib.Worker.full_jid pid
+  @spec id(pid, type :: :full | :resource) :: {:ok, String.t}
+  def id(pid, type \\ :full)
+  def id(pid, :full), do: UcaLib.Worker.full_jid pid
+  def id(pid, :resource), do: UcaLib.Worker.resource pid
+
 
   # Internals
 
@@ -46,6 +49,6 @@ defmodule UcaLib.Registration do
     "urn:schemas-upnp-org:device:#{device_type}:#{device_version}:#{uuid()}"
   end
 
-end
   defp uuid(), do: UUID.uuid4()
 
+end
