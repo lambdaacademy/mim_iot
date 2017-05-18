@@ -15,7 +15,7 @@ defmodule NervesUccd.Mixfile do
      archives: [nerves_bootstrap: "~> 0.3.0"],
      deps_path: "../../deps/#{@target}",
      build_path: "../../_build/#{@target}",
-     config_path: "../../config/config.exs",
+     config_path: "config/config.exs",
      lockfile: "../../mix.lock",
      build_embedded: Mix.env == :prod,
      start_permanent: Mix.env == :prod,

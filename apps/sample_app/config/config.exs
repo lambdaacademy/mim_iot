@@ -5,6 +5,13 @@
 # is restricted to this project.
 use Mix.Config
 
+config :uca_lib, Registration,
+  jid: "user_1@localhost",
+  password: "pass_1",
+  host: "localhost",
+  device_type: "ContorlPoint",
+  device_version: 1
+
 # General application configuration
 config :sample_app,
   namespace: SampleApp
