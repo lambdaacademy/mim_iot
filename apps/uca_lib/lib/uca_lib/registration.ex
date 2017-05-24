@@ -5,6 +5,9 @@ defmodule UcaLib.Registration do
 
   @connect_config Application.get_env :uca_lib, Registration
 
+  @type device_jid :: String.t
+  @type device_resource :: String.t
+
   # API
 
   @doc """
@@ -27,13 +30,20 @@ defmodule UcaLib.Registration do
   def disconnect(pid), do: Supervisor.terminate_child UcaLib.Supervisor, pid
 
   @doc """
-  Returns a full JID of the connection identified by `pid`
+  Returns a different JID parts of the connection identified by `pid`
   """
   @spec id(pid, type :: :full | :resource) :: {:ok, String.t}
   def id(pid, type \\ :full)
   def id(pid, :full), do: UcaLib.Worker.full_jid pid
   def id(pid, :resource), do: UcaLib.Worker.resource pid
 
+  @doc """
+  Returns a resource part of the JID
+  """
+  @spec resource_from_id(device_jid) :: device_resource
+  def resource_from_id(device_jid) do
+    String.split(device_jid, "/") |> Enum.at(1)
+  end
 
   # Internals
 
