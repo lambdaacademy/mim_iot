@@ -20,6 +20,7 @@ defmodule UcaLib.Mixfile do
   end
 
   defp deps do
-    [{:romeo, "~> 0.7.0"}]
+    [{:romeo, github: "mentels/romeo"},
+     {:uuid, "~> 1.1"}]
   end
 end

@@ -5,6 +5,9 @@ defmodule UcaLib.Registration do
 
   @connect_config Application.get_env :uca_lib, Registration
 
+  @type device_jid :: String.t
+  @type device_resource :: String.t
+
   # API
 
   @doc """
@@ -27,10 +30,20 @@ defmodule UcaLib.Registration do
   def disconnect(pid), do: Supervisor.terminate_child UcaLib.Supervisor, pid
 
   @doc """
-  Returns a full JID of the connection identified by `pid`
+  Returns a different JID parts of the connection identified by `pid`
   """
-  @spec id(pid) :: {:ok, String.t}
-  def id(pid), do: UcaLib.Worker.full_jid pid
+  @spec id(pid, type :: :full | :resource) :: {:ok, String.t}
+  def id(pid, type \\ :full)
+  def id(pid, :full), do: UcaLib.Worker.full_jid pid
+  def id(pid, :resource), do: UcaLib.Worker.resource pid
+
+  @doc """
+  Returns a resource part of the JID
+  """
+  @spec resource_from_id(device_jid) :: device_resource
+  def resource_from_id(device_jid) do
+    String.split(device_jid, "/") |> Enum.at(1)
+  end
 
   # Internals
 
@@ -41,7 +54,11 @@ defmodule UcaLib.Registration do
   # TODO: Appropriately form an XMPP resource
   # See C.5.4 Binding Devices and Control Points as a Resource in UDA 2.0
   defp resource() do
-    "#{System.monotonic_time}"
+    device_type = @connect_config[:device_type]
+    device_version = @connect_config[:device_version]
+    "urn:schemas-upnp-org:device:#{device_type}:#{device_version}:#{uuid()}"
   end
+
+  defp uuid(), do: UUID.uuid4()
 
 end
