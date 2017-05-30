@@ -40,28 +40,23 @@ defmodule NervesUccd.Mixfile do
   def deps do
     [{:nerves, "~> 0.5.0", runtime: false},
      {:romeo, github: "mentels/romeo"},
-     {:uca_lib, in_umbrella: true},
-     {:erl_sshd, github: "ivanos/erl_sshd"}] ++
+     {:uca_lib, in_umbrella: true}] ++
     deps(@target)
   end
 
   def deps("host"), do: []
   def deps("mim_iot_rpi") do
-    [{:nerves_runtime, "~> 0.1.0"},
-     {:nerves_interim_wifi, "~> 0.2"},
-     {:nerves_networking, "~> 0.6"},
-     {:mim_iot_rpi, "0.12.0-dev", github: "mentels/mim_iot_rpi", runtime: false}]
+    mim_iot_deps() ++ [
+      {:mim_iot_rpi, "0.12.0-dev", github: "mentels/mim_iot_rpi", runtime: false}]
       # path: "~/proj/iot/nerves_rpi_builder/mim_iot_rpi", runtime: false}]
   end
   def deps("mim_iot_rpi0") do
-    [{:nerves_runtime, "~> 0.1.0"},
-     {:nerves_interim_wifi, "~> 0.2"},
+    mim_iot_deps() ++ [
      {:mim_iot_rpi0, "0.13.0-dev", github: "mentels/mim_iot_rpi0", runtime: false}]
       # path: "~/proj/iot/nerves_rpi_builder/mim_iot_rpi0", runtime: false}]
   end
   def deps("mim_iot_rpi3") do
-    [{:nerves_runtime, "~> 0.1.0"},
-     {:nerves_interim_wifi, "~> 0.2"},
+    mim_iot_deps() ++ [
      {:mim_iot_rpi3, "0.13.0-dev", github: "mentels/mim_iot_rpi3", runtime: false}]
     # path: "~/proj/iot/nerves_rpi_builder/mim_iot_rpi3", runtime: false}]
   end
@@ -70,11 +65,17 @@ defmodule NervesUccd.Mixfile do
      {:"nerves_system_#{target}", "~> 0.11.0", runtime: false}]
   end
 
+  defp mim_iot_deps() do
+    [{:nerves_runtime, "~> 0.1.0"},
+     {:nerves_interim_wifi, "~> 0.2"},
+     {:nerves_networking, "~> 0.6"},
+     {:erl_sshd, github: "ivanos/erl_sshd"}]
+  end
+
   # We do not invoke the Nerves Env when running on the Host
   def aliases("host"), do: []
   def aliases(_target) do
     ["deps.precompile": ["nerves.precompile", "deps.precompile"],
      "deps.loadpaths":  ["deps.loadpaths", "nerves.loadpaths"]]
   end
-
 end

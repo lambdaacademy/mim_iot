@@ -12,6 +12,7 @@
   "gettext": {:hex, :gettext, "0.13.1", "5e0daf4e7636d771c4c71ad5f3f53ba09a9ae5c250e1ab9c42ba9edccc476263", [:mix], []},
   "mim_iot_rpi": {:git, "https://github.com/mentels/mim_iot_rpi.git", "084ea4b1e5d71d157938d56c53b961b9accad34b", []},
   "mim_iot_rpi0": {:git, "https://github.com/mentels/mim_iot_rpi0.git", "84debc14c6396bedb0d1ce88b5a974d900f3b3fc", []},
+  "mim_iot_rpi3": {:git, "https://github.com/mentels/mim_iot_rpi3.git", "a38a938ad6e0b0a0a92a4a432bf76fbaa27be15d", []},
   "mime": {:hex, :mime, "1.1.0", "01c1d6f4083d8aa5c7b8c246ade95139620ef8effb009edde934e0ec3b28090a", [:mix], []},
   "nerves": {:hex, :nerves, "0.5.1", "a55d73752e8f271c7aca5fbe47747f07d0e7760b5e858e7f8da17ab06287f49c", [:mix], [{:distillery, "~> 1.0", [hex: :distillery, optional: false]}]},
   "nerves_interim_wifi": {:hex, :nerves_interim_wifi, "0.2.0", "d8fa51dfcdaf06c2d453de03ef22e7a3ca673412718b1c988b5742fb1629d8cc", [:make, :mix], [{:elixir_make, "~> 0.3", [hex: :elixir_make, optional: false]}, {:nerves_network_interface, "~> 0.4.0", [hex: :nerves_network_interface, optional: false]}, {:nerves_wpa_supplicant, "~> 0.3.0", [hex: :nerves_wpa_supplicant, optional: false]}]},
