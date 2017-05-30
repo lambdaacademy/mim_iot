@@ -34,7 +34,7 @@ defmodule NervesUccd.Mixfile do
   end
   def application(_target) do
     [mod: {NervesUccd.Application, []},
-     extra_applications: [:logger]]
+     extra_applications: [:logger, :ssl]]
   end
 
   def deps do
