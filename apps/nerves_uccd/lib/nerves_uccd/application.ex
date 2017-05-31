@@ -6,18 +6,10 @@ defmodule NervesUccd.Application do
   def start(_type, _args) do
     import Supervisor.Spec, warn: false
 
-    children = []
-
-    NervesUccd.Networking.setup
-    connect()
+    children = [worker(NervesUccd.Worker, [])]
 
     opts = [strategy: :one_for_one, name: NervesUccd.Supervisor]
     Supervisor.start_link(children, opts)
-  end
-
-  defp connect() do
-    {:ok, pid} = Registration.connect
-    Discovery.activate pid
   end
 
 end
