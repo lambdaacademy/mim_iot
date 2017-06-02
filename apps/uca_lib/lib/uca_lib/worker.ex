@@ -141,7 +141,7 @@ defmodule UcaLib.Worker do
 
   def handle_cast({:connect, args}, %State{conn_pid: nil} = state) do
     {:ok, pid} = Conn.start_link args
-    Logger.info "Conecting as #{state.full_jid}"
+    Logger.info "Connecting as #{state.full_jid} with args #{inspect args}"
     {:noreply, %{state | conn_pid: pid}}
   end
 

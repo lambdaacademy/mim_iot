@@ -3,8 +3,6 @@ defmodule UcaLib.Registration do
   This module implements the Registration step from the UDA 2.0
   """
 
-  @connect_config Application.get_env :uca_lib, Registration
-
   @type device_jid :: String.t
   @type device_resource :: String.t
 
@@ -47,18 +45,22 @@ defmodule UcaLib.Registration do
 
   # Internals
 
+  defp get_connect_config() do
+    Application.get_env :uca_lib, Registration
+  end
+
   defp connect_opts(opts) do
-    Keyword.merge [{:resource, resource()} | @connect_config], opts
+    config = get_connect_config()
+    Keyword.merge [{:resource, resource(config)} | config], opts
   end
 
   # TODO: Appropriately form an XMPP resource
   # See C.5.4 Binding Devices and Control Points as a Resource in UDA 2.0
-  defp resource() do
-    device_type = @connect_config[:device_type]
-    device_version = @connect_config[:device_version]
+  defp resource(config) do
+    device_type = config[:device_type]
+    device_version = config[:device_version]
     "urn:schemas-upnp-org:device:#{device_type}:#{device_version}:#{uuid()}"
   end
 
   defp uuid(), do: UUID.uuid4()
-
 end

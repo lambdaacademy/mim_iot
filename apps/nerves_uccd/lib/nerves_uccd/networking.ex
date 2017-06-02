@@ -1,55 +1,65 @@
 defmodule NervesUccd.Networking do
-
-  @config Application.get_env(:nerves_uccd, Networking)
-  @net_type @config[:type]
-  @net_mode @config[:mode]
-  @net_opts @config[:opts]
-
-  @dhcp_check_interval 2_000
-  @dhcp_timeout 10_000
+  use GenServer
+  require Logger
 
   # API
 
-  def setup() do
-    setup @net_type, @net_mode, @net_opts
+  def start_link(worker) do
+    GenServer.start_link(__MODULE__, worker, name: __MODULE__)
+  end
+
+  # Callbacks
+
+  def init(worker) do
+    send(self(), :setup)
+    {:ok, %{worker: worker}}
+  end
+
+  def handle_info(:setup, state) do
+    config = Application.get_env(:nerves_uccd, Networking)
+    setup(config[:type], config[:opts])
+    {:noreply, state}
+  end
+  def handle_info({Nerves.NetworkInterface, _, %{is_running: true, is_up: true}}, state) do
+    send state.worker, :setup_uca
+    {:noreply, state}
+  end
+  def handle_info({Nerves.Udhcpc, event, %{ipv4_address: ip}}, state) when event in [:bound, :renew] do
+    Logger.info "IP Address #{inspect ip}"
+    send state.worker, :setup_uca
+    {:noreply, state}
+  end
+  def handle_info(message, state) do
+    Logger.info inspect(message)
+    {:noreply, state}
   end
 
   # Internals
 
-  defp setup(nil, _, _), do: :ok
-  defp setup(:ethernet, mode, opts) do
-    {:ok, _} = Nerves.Networking.setup opts[:interface], eth_opts(mode, opts)
-    case mode do
-      :static -> :ok
-      :dynamic -> wait_for_dhcp_bind(opts)
+  defp setup(nil, _), do: :ok
+  defp setup(:ethernet, opts) do
+    interface = to_string(opts[:interface])
+
+    case Keyword.fetch(opts, :ip) do
+      {:ok, ip} -> setup_static_interface(interface, ip)
+      :error    -> setup_dynamic_interface(interface)
     end
   end
-  defp setup(:wireless, mode, opts) do
+  defp setup(:wireless, opts) do
+    interface = to_string(opts[:interface])
     {_, 0} = System.cmd("modprobe", ["brcmfmac"])
-    {:ok, _} = Nerves.InterimWiFi.setup opts[:interface],
-      Keyword.delete(opts, :interface)
+    setup_dynamic_interface(interface, Keyword.delete(opts, :interface))
   end
 
-  defp eth_opts(:dynamic, _), do: []
-  defp eth_opts(:static, opts),
-    do: [mode: "static", ip: opts[:ip], mask: opts[:mask]]
-
-  defp wait_for_dhcp_bind(opts) do
-    respond_to = self()
-    dhcp_wait_fun = fn interface, rec_fun ->
-      Process.sleep(@dhcp_check_interval)
-      if (Nerves.Networking.settings(interface)).status == "bound" do
-        send(respond_to, {self(), :dhcp_bound})
-      else
-        rec_fun.(interface, rec_fun)
-      end
-    end
-    pid = spawn_link(fn -> dhcp_wait_fun.(opts[:interface], dhcp_wait_fun) end)
-    receive do
-      {^pid, :dhcp_bound} -> :ok
-    after @dhcp_timeout -> {:error, :dhcp_failed}
-    end
+  defp setup_static_interface(interface, ip) do
+    :ok = Nerves.NetworkInterface.ifdown interface
+    {:ok, _} = Registry.register(Nerves.NetworkInterface, interface, [])
+    :ok = Nerves.NetworkInterface.setup interface, ipv4_address: ip
+    :ok = Nerves.NetworkInterface.ifup interface
   end
 
-
+  defp setup_dynamic_interface(interface, opts \\ []) do
+    {:ok, _} = Registry.register(Nerves.Udhcpc, interface, [])
+    {:ok, _} = Nerves.InterimWiFi.setup interface, opts
+  end
 end

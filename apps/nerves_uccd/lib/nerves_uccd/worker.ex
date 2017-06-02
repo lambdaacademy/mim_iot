@@ -8,7 +8,9 @@ defmodule NervesUccd.Worker do
 
   require Logger
 
-  def start_link(), do: GenServer.start_link(__MODULE__, nil, [name: @name])
+  def start_link() do
+    GenServer.start_link(__MODULE__, nil, [name: @name])
+  end
 
   def init(_) do
     GenServer.cast(@name, :setup_networking)
@@ -16,15 +18,13 @@ defmodule NervesUccd.Worker do
   end
 
   def handle_cast(:setup_networking, state) do
-    :ok = Networking.setup
-    GenServer.cast(@name, :setup_uca)
+    {:ok, _pid} = Networking.start_link(self())
     {:noreply, state}
   end
 
-  def handle_cast(:setup_uca, state) do
+  def handle_info(:setup_uca, state) do
     {:ok, pid} = Registration.connect
     :ok = Discovery.activate pid
     {:noreply, state}
   end
-
 end

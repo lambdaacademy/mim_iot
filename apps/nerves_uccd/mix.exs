@@ -67,8 +67,8 @@ defmodule NervesUccd.Mixfile do
 
   defp mim_iot_deps() do
     [{:nerves_runtime, "~> 0.1.0"},
-     # {:nerves_interim_wifi, "~> 0.2"},
-     {:nerves_networking, "~> 0.6"},
+     {:nerves_network_interface, "~> 0.4.0"},
+     {:nerves_interim_wifi, "~> 0.2"},
      {:erl_sshd, github: "ivanos/erl_sshd"}]
   end
 

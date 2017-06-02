@@ -4,7 +4,6 @@ config :uca_lib, Registration,
   jid: "user_1@localhost",
   password: "pass_1",
   host: "192.168.0.1",
-  # host: "localhost",
   device_type: "Player",
   device_version: 1
 
@@ -13,17 +12,13 @@ config :nerves_uccd, Networking,
 
   # types: :ethernet, :wireless
   type: :ethernet,
-  # modes: :static, :dynamic
-  mode: :static,
-  # opts for :ethernet type and :dynamic mode:
+  # opts for :ethernet type and DHCP
   #  [interface: :eth0]
-  # opts for :ethernet type and :static mode: interface:
-  #  [:eth0, ip: "192.168.0.1", mask: "16"]
-  # opts for :wireless type and :dynamic mode:
-  #   [interface: "wlan0", ssid: "my_net", key_mgmt: :"WPA-PSK", psk: "pass"]
-  # opts for :wireless type and :static mode: interface:
-  #   [interface: "wlan0", ip: "192.168.0.1", ssid: "my_net", key_mgmt: :"WPA-PSK", psk: "pass"]
-  opts: [interface: :eth0, ip: "192.168.0.100", mask: "16"]
+  # opts for :ethernet type and fixed IP address
+  #  [interface: :eth0, ip: "192.168.0.100"]
+  # opts for :wireless type and DHCP
+  #  [interface: :wlan0, ssid: "my_net", psk: "pass", key_mgmt: :"WPA-PSK"]
+  opts: [interface: :eth0]
 
 config :erl_sshd,
   app: :nerves_uccd,
