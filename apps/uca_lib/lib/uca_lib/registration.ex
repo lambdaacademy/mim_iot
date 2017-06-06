@@ -3,7 +3,7 @@ defmodule UcaLib.Registration do
   This module implements the Registration step from the UDA 2.0
   """
 
-  @connect_config Application.get_env :uca_lib, Registration
+  @connect_config Application.get_env :uca_lib, Registration, []
 
   @type device_jid :: String.t
   @type device_resource :: String.t

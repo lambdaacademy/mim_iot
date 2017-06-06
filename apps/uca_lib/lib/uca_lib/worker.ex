@@ -6,6 +6,7 @@ defmodule UcaLib.Worker do
   alias Romeo.Connection, as: Conn
   alias Romeo.{Stanza, JID, XML}
   alias Romeo.Stanza.{Presence, IQ, Message}
+  alias UcaLib.ConnFsm
 
   defmodule State do
     defstruct conn_pid: nil,
@@ -15,7 +16,8 @@ defmodule UcaLib.Worker do
       resource: nil,
       pending_request: nil,
       subs: %{},
-      pubsub_service: nil
+      pubsub_service: nil,
+      fsm: nil
   end
 
   # API
@@ -74,22 +76,26 @@ defmodule UcaLib.Worker do
     Process.flag :trap_exit, true
     GenServer.cast(self(), {:connect, args})
     resource = args[:resource]
-    {:ok, %State{full_jid: "#{args[:jid]}/#{resource}", resource: resource}}
+    {:ok, %State{full_jid: "#{args[:jid]}/#{resource}", resource: resource,
+                 fsm: ConnFsm.new()}}
   end
 
   def terminate(reason, state) do
     Logger.info "Terminating as #{state.full_jid} because of #{inspect reason}"
-    # The unavailable presence is sent automatically
-    Conn.close state.conn_pid
   end
 
-  def handle_call(:send_presence_available, _from, state) do
-    Conn.send state.conn_pid, Stanza.presence
-    {:reply, :ok, state}
+  def handle_call(:send_presence_available, from, state) do
+    on_confirmation = fn reply -> GenServer.reply(from, reply) end
+    case ConnFsm.send_initial_presence(state.fsm, on_confirmation) do
+      {reply, fsm} -> {:reply, reply, %{state | fsm: fsm}}
+      fsm -> {:noreply, %{state | fsm: fsm}}
+    end
   end
   def handle_call(:send_presence_unavailable, _from, state) do
-    Conn.send state.conn_pid, Stanza.presence "unavailable"
-    {:reply, :ok, state}
+    case ConnFsm.send_presence_unavailable(state.fsm) do
+      {reply, fsm} ->  {:reply, reply, %{state | fsm: fsm}}
+      fsm -> {:reply, :ok, %{state | fsm: fsm}}
+    end
   end
   def handle_call(:available_resources, _from, state) do
     {:reply, {:ok, state.available_resources}, state}
@@ -139,15 +145,28 @@ defmodule UcaLib.Worker do
        pending_request: {:pubsub_subscribe, from, node_name, on_notify}}}
   end
 
-  def handle_cast({:connect, args}, %State{conn_pid: nil} = state) do
-    {:ok, pid} = Conn.start_link args
-    Logger.info "Conecting as #{state.full_jid}"
-    {:noreply, %{state | conn_pid: pid}}
+  def handle_cast({:connect, args}, state) do
+    {:noreply, %{state | fsm: ConnFsm.connect(state.fsm, args)}}
   end
 
-  def handle_info(:connection_ready, %State{conn_ready: false} = state) do
-    {:noreply, %{state | conn_ready: true}}
+  
+  def handle_info(:connection_ready, state) do
+    {:noreply, %{state | fsm: ConnFsm.conn_ready(state.fsm)}}
   end
+  def handle_info(:connection_timeout, state) do
+    {:stop, :connection_timeout, %{state | fsm: ConnFsm.conn_timeout(state.fsm)}}
+  end
+  def handle_info({:stanza, stanza}, state) do
+    fsm = case ConnFsm.handle_stanza(state.fsm, stanza) do
+      {:ignored, fsm} ->
+        Logger.debug fn -> "[IGNORED]: #{inspect stanza}" end
+        fsm
+      fsm ->
+        fsm
+    end
+    {:noreply, %{state | fsm: fsm}}
+  end
+
   def handle_info({:stanza, %Presence{from: from, to: to, type: nil}},
     %State{conn_ready: true} = state) when from == to do
     {:noreply, state}
@@ -269,5 +288,5 @@ defmodule UcaLib.Worker do
       |> XML.subelement("items")
     {XML.attr(items, "node"), xmlel(items, :children)}
   end
-
+  
 end
